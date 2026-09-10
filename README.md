@@ -90,8 +90,14 @@ figure generate in fase di analisi (`figures/`) — vedi la sezione
 `ThresholdController` è un controllore a regole fisse (nessun
 apprendimento), tarato su un setpoint nominale fisso di 500 lux e ignaro
 del target reale dell'episodio — rappresenta la tipica logica di building
-automation tradizionale. Serve da termine di paragone per l'agente RL
-(domanda Q1).
+automation tradizionale. Se la stanza non è occupata tiene tapparella
+chiusa e LED spenti; se è occupata, sceglie la posizione della tapparella
+tra 4 livelli fissi in base al rapporto tra lux interno attuale e
+setpoint nominale (più lux interno, più chiude la tapparella, per evitare
+abbagliamento), e controlla i LED con una logica ON/OFF con una banda
+morta del 10% attorno al setpoint: fuori banda accende o spegne al
+massimo, dentro banda non cambia stato (per non oscillare in continuazione).
+Serve da termine di paragone per l'agente RL (domanda Q1).
 
 ## Librerie richieste
 
