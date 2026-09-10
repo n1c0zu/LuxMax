@@ -15,15 +15,14 @@ analisi:
 - **Q3** — La policy resta affidabile fuori distribuzione (condizioni
   estreme non viste in training)?
 
-## Algoritmo consigliato: SAC
+## Baseline di confronto
 
-Allenato con **PPO**, l'agente collassa su una soluzione sub-ottimale
-(tapparella sempre chiusa, illuminamento gestito solo dai LED). **SAC**
-(Soft Actor-Critic), grazie alla massimizzazione esplicita dell'entropia e
-all'apprendimento off-policy, risolve il problema: con SAC l'errore medio
-di illuminamento nelle ore occupate è circa il 3-5%. Il confronto PPO vs
-SAC (e l'osservazione di questo comportamento) è riprodotto nella sezione
-Q2 del notebook di analisi.
+Il termine di paragone per l'agente RL (domanda Q1) è `ThresholdController`:
+un controllore a soglie fisse, non adattivo, tarato una volta su un
+setpoint nominale di 500 lux e ignaro del target reale dell'episodio —
+apre/chiude la tapparella su pochi livelli discreti in base a soglie di
+lux assolute, e accende/spegne i LED con banda morta attorno al setpoint
+nominale. È la logica tipica di un building automation tradizionale.
 
 ## Struttura delle cartelle
 
