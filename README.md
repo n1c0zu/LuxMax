@@ -4,36 +4,70 @@ Agente di Reinforcement Learning che impara a bilanciare **luce naturale**
 (apertura tapparella) e **luce artificiale** (dimmer LED) per mantenere un
 illuminamento costante sul piano di lettura/lavoro, sfruttando il più
 possibile la luce naturale ed evitando l'**abbagliamento**. L'ambiente
-Gymnasium custom si chiama **AdaLux** (classe `AdaLux` in `lighting_env.py`).
+Gymnasium custom si chiama **AdaLux** (classe `AdaLux` in
+`modules/lighting_env.py`).
+
+Il progetto risponde a tre domande di ricerca, riprodotte nel notebook di
+analisi:
+
+- **Q1** — Un agente RL (SAC) supera un controllore a soglie fisse?
+- **Q2** — Quale tra PPO e SAC converge meglio ed evita ottimi locali?
+- **Q3** — La policy resta affidabile fuori distribuzione (condizioni
+  estreme non viste in training)?
 
 ## Algoritmo consigliato: SAC
 
-Allenato con **PPO**, l'agente collassava su una soluzione sub-ottimale
+Allenato con **PPO**, l'agente collassa su una soluzione sub-ottimale
 (tapparella sempre chiusa, illuminamento gestito solo dai LED). **SAC**
 (Soft Actor-Critic), grazie alla massimizzazione esplicita dell'entropia e
-all'apprendimento off-policy, ha risolto il problema: con il modello
-incluso l'errore medio di illuminamento nelle ore occupate è circa il
-3-5%. Il confronto PPO vs SAC (e l'osservazione di questo comportamento)
-è riprodotto nella sezione Q2 del notebook.
+all'apprendimento off-policy, risolve il problema: con SAC l'errore medio
+di illuminamento nelle ore occupate è circa il 3-5%. Il confronto PPO vs
+SAC (e l'osservazione di questo comportamento) è riprodotto nella sezione
+Q2 del notebook di analisi.
 
-## Struttura del progetto
+## Struttura delle cartelle
 
 ```
-lighting_env.py            # ambiente Gymnasium custom AdaLux (simulazione fisica semplificata)
-baseline_controller.py     # ThresholdController: baseline a soglie fisse (non-RL), usata come confronto per l'agente RL
-notebook_lighting_rl.ipynb # training + valutazione end-to-end (Q1/Q2/Q3), vedi sotto
+modules/                        # codice condiviso, importato dai notebook
+  lighting_env.py                #   ambiente Gymnasium custom AdaLux (simulazione fisica semplificata)
+  baseline_controller.py         #   ThresholdController: baseline a soglie fisse (non-RL)
+  eval_utils.py                  #   funzioni comuni: esecuzione episodi, metriche, grafico "giorno tipo"
+
+notebooks/                      # notebook eseguibili, vedi "Ordine di esecuzione" sotto
+  01_training.ipynb              #   allena PPO e SAC e salva i modelli
+  02_domande_di_ricerca.ipynb    #   carica i modelli allenati e risponde a Q1/Q2/Q3
+
+models/                         # modelli allenati (prodotti da 01_training.ipynb)
+  ppo_q2_seed{1..N}.zip           #   un modello PPO per ogni training seed
+  sac_q2_seed{1..N}.zip           #   un modello SAC per ogni training seed (riusato anche da Q1/Q3)
+
+logs/                            # log di training per episodio (prodotti da 01_training.ipynb)
+  q2_ppo_seed{1..N}/monitor.monitor.csv
+  q2_sac_seed{1..N}/monitor.monitor.csv
+
+figures/                         # grafici salvati in PNG (prodotti da 02_domande_di_ricerca.ipynb)
+
 requirements.txt
-models/ppo_q2_seed{{1..N}}.zip   # modelli PPO, uno per training seed (generati dal notebook)
-models/sac_q2_seed{{1..N}}.zip   # modelli SAC, uno per training seed (generati dal notebook, riusati anche da Q1/Q3)
+README.md
 ```
 
-## Installazione
+## Dati e ambiente utilizzato
 
-```bash
-pip install -r requirements.txt
-```
+Il progetto **non usa un dataset esterno**: non ci sono file di dati
+grezzi da scaricare né da pre-processare, e di conseguenza non esiste un
+notebook di preprocessing. AdaLux genera gli episodi (giornate simulate)
+**proceduralmente**, con un generatore di numeri casuali seedato in modo
+indipendente ad ogni `reset()` — un seed diverso per ogni episodio, sia in
+training (`SEEDS`, valori piccoli 1..N) sia in valutazione (`TEST_SEEDS`,
+valori a partire da 1000, così da non sovrapporsi mai ai seed di
+training). Non essendoci dati grezzi, non c'è nemmeno una distinzione tra
+"dati originali" e "dati pre-processati": i soli artefatti salvati su
+disco sono quelli prodotti dall'esecuzione dei notebook, cioè i modelli
+allenati (`models/`), i log di reward per episodio (`logs/`) e le figure
+generate in fase di analisi (`figures/`) — vedi la sezione "Struttura
+delle cartelle" sopra per dove trovarli.
 
-## Come funziona l'ambiente (`lighting_env.py` — classe `AdaLux`)
+### Come funziona l'ambiente (`modules/lighting_env.py` — classe `AdaLux`)
 
 - **Episodio** = un giorno simulato, 96 step da 15 minuti.
 - **Osservazione** (9 valori, normalizzati): ora del giorno (sin/cos), lux
@@ -65,42 +99,56 @@ pip install -r requirements.txt
   ogni `reset()`, così l'agente generalizza invece di imparare un'unica
   routine fissa.
 
-## Baseline non-RL (`baseline_controller.py`)
+### Baseline non-RL (`modules/baseline_controller.py`)
 
 `ThresholdController` è un controllore a regole fisse (nessun
 apprendimento), tarato su un setpoint nominale fisso di 500 lux e ignaro
 del target reale dell'episodio — rappresenta la tipica logica di building
 automation tradizionale. Serve da termine di paragone per l'agente RL
-(domanda Q1 del notebook).
+(domanda Q1).
 
-## Training e valutazione: `notebook_lighting_rl.ipynb`
+## Librerie richieste
 
-Tutto il flusso di training e valutazione è nel notebook, organizzato per
-rispondere a tre domande di ricerca:
+```bash
+pip install -r requirements.txt
+```
 
-- **Q1** — Un agente RL (SAC) supera il controllore a soglie fisse?
-  Confronto su errore medio di lux ed energia consumata su un set di
-  episodi di test.
-- **Q2** — Quale tra PPO e SAC converge meglio ed evita ottimi locali?
-  Training a parità di step, confronto delle curve di reward e ispezione
-  qualitativa del comportamento appreso.
-- **Q3** — La policy resta affidabile fuori distribuzione? Test su
-  episodi con condizioni estreme (target di lux, nuvolosità, occupazione)
-  non viste in training.
+Le librerie principali sono `gymnasium` (ambiente), `stable-baselines3` e
+`torch` (algoritmi PPO/SAC), `pandas`/`numpy` (metriche) e `matplotlib`
+(grafici); l'elenco completo con le versioni minime è in
+`requirements.txt`.
 
-Il notebook ha una variabile `FAST_MODE` in cima: `True` esegue una
-passata veloce (pochi timestep) per verificare che tutto funzioni, `False`
-usa i timestep "di ricerca" consigliati (80.000 — più lenti, soprattutto
-SAC che è single-env). Sempre in cima, `N_SEEDS` imposta su quanti training
-seed indipendenti allenare PPO e SAC (gli stessi modelli sono poi riusati
-da Q1, Q2 e Q3 — vedi la sezione 2 del notebook per il perché). C'è anche
-una variabile
-`DEVICE` (`"auto"` / `"cuda"` / `"cpu"`) per scegliere GPU o CPU: con reti
-così piccole la CPU è spesso comparabile o più veloce della GPU.
+## Ordine di esecuzione dei notebook
+
+Non c'è un notebook di preprocessing (vedi sopra: non c'è un dataset da
+preparare). L'ordine è:
+
+1. **`notebooks/01_training.ipynb`** — allena PPO e SAC su `N_SEEDS`
+   training seed indipendenti e salva i modelli in `models/` e i log in
+   `logs/`. Se i modelli sono già presenti su disco non riallena da zero
+   (`RETRAIN = False` di default): puoi saltare questo notebook se
+   `models/` è già popolata.
+2. **`notebooks/02_domande_di_ricerca.ipynb`** — carica i modelli allenati
+   da `models/` e risponde a Q1, Q2 e Q3, salvando i grafici in
+   `figures/`. Va eseguito **dopo** il notebook di training, perché si
+   aspetta di trovare i file `.zip` in `models/`.
+
+**Importante**: in cima a entrambi i notebook ci sono le stesse variabili
+di configurazione (`FAST_MODE`, `N_SEEDS`, `TIMESTEPS`,
+`N_TEST_EPISODES`) — devono avere **lo stesso valore** in entrambi,
+altrimenti il secondo notebook cerca modelli con un numero di seed
+diverso da quelli effettivamente allenati dal primo. `FAST_MODE = True`
+esegue una passata veloce (pochi timestep) solo per verificare che tutto
+funzioni; `False` usa i timestep "di ricerca" consigliati (80.000 — più
+lenti, soprattutto SAC che è single-env). `N_SEEDS` imposta su quanti
+training seed indipendenti allenare PPO e SAC. `DEVICE` è impostato su
+`"cpu"` (consigliato: con reti così piccole la CPU è spesso comparabile o
+più veloce di una GPU); il notebook segnala solo a scopo informativo se
+è disponibile una GPU CUDA.
 
 ## Idee per estenderlo
 
-- **Più training**: aumentare `TIMESTEPS` nel notebook (con
+- **Più training**: aumentare `TIMESTEPS` nel notebook di training (con
   `FAST_MODE = False`) per una convergenza ancora più stabile.
 - **Osservazioni reali**: sostituire i segnali simulati (lux esterno,
   nuvolosità) con letture da sensori reali (fotocellula da esterno,
