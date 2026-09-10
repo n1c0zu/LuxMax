@@ -43,19 +43,15 @@ README.md
 
 ## Dati e ambiente utilizzato
 
-Il progetto **non usa un dataset esterno**: non ci sono file di dati
-grezzi da scaricare né da pre-processare, e di conseguenza non esiste un
-notebook di preprocessing. AdaLux genera gli episodi (giornate simulate)
-**proceduralmente**, con un generatore di numeri casuali seedato in modo
-indipendente ad ogni `reset()` — un seed diverso per ogni episodio, sia in
-training (`SEEDS`, valori piccoli 1..N) sia in valutazione (`TEST_SEEDS`,
-valori a partire da 1000, così da non sovrapporsi mai ai seed di
-training). Non essendoci dati grezzi, non c'è nemmeno una distinzione tra
-"dati originali" e "dati pre-processati": i soli artefatti salvati su
-disco sono quelli prodotti dall'esecuzione dei notebook, cioè i modelli
-allenati (`models/`), i log di reward per episodio (`logs/`) e le figure
-generate in fase di analisi (`figures/`) — vedi la sezione "Struttura
-delle cartelle" sopra per dove trovarli.
+AdaLux genera gli episodi (giornate simulate) **proceduralmente**, con
+un generatore di numeri casuali seedato in modo indipendente ad ogni
+`reset()` — un seed diverso per ogni episodio, sia in training (`SEEDS`,
+valori piccoli 1..N) sia in valutazione (`TEST_SEEDS`, valori a partire
+da 1000, così da non sovrapporsi mai ai seed di training). Gli artefatti
+salvati su disco sono quelli prodotti dall'esecuzione dei notebook: i
+modelli allenati (`models/`), i log di reward per episodio (`logs/`) e le
+figure generate in fase di analisi (`figures/`) — vedi la sezione
+"Struttura delle cartelle" sopra per dove trovarli.
 
 ### Come funziona l'ambiente (`modules/lighting_env.py` — classe `AdaLux`)
 
