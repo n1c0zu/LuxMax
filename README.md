@@ -15,15 +15,6 @@ analisi:
 - **Q3** — La policy resta affidabile fuori distribuzione (condizioni
   estreme non viste in training)?
 
-## Baseline di confronto
-
-Il termine di paragone per l'agente RL (domanda Q1) è `ThresholdController`:
-un controllore a soglie fisse, non adattivo, tarato una volta su un
-setpoint nominale di 500 lux e ignaro del target reale dell'episodio —
-apre/chiude la tapparella su pochi livelli discreti in base a soglie di
-lux assolute, e accende/spegne i LED con banda morta attorno al setpoint
-nominale. È la logica tipica di un building automation tradizionale.
-
 ## Struttura delle cartelle
 
 ```
