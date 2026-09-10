@@ -113,8 +113,8 @@ def plot_day(records, lux_target, season_summer, title_suffix=""):
     ax.axhline(lux_target, color="#16a34a", linestyle=":", label="Target lux")
     _shade_occupancy(ax, hours, occ)
     ax.set_ylabel("Lux")
-    ax.set_title(f"{'Estate' if season_summer else 'Inverno/mezza stagione'} — "
-                 f"target {lux_target:.0f} lux {title_suffix}")
+    ax.set_title(f"{'Estate' if season_summer else 'Inverno/mezza stagione'}, "
+                 f"target {lux_target:.0f} lux{title_suffix}")
     ax.legend(loc="upper right", fontsize=8)
 
     ax = axes[1]
