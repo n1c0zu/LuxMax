@@ -112,9 +112,6 @@ Le librerie principali sono `gymnasium` (ambiente), `stable-baselines3` e
 
 ## Ordine di esecuzione dei notebook
 
-Non c'è un notebook di preprocessing (vedi sopra: non c'è un dataset da
-preparare). L'ordine è:
-
 1. **`notebooks/01_training.ipynb`** — allena PPO e SAC su `N_SEEDS`
    training seed indipendenti e salva i modelli in `models/` e i log in
    `logs/`. Se i modelli sono già presenti su disco non riallena da zero
