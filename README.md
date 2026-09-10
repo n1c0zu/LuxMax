@@ -89,8 +89,7 @@ figure generate in fase di analisi (`figures/`) — vedi la sezione
 
 `ThresholdController` è un controllore a regole fisse (nessun
 apprendimento), tarato su un setpoint nominale fisso di 500 lux e ignaro
-del target reale dell'episodio — rappresenta la tipica logica di building
-automation tradizionale. Se la stanza non è occupata tiene tapparella
+del target reale dell'episodio. Se la stanza non è occupata tiene tapparella
 chiusa e LED spenti; se è occupata, sceglie la posizione della tapparella
 tra 4 livelli fissi in base al rapporto tra lux interno attuale e
 setpoint nominale (più lux interno, più chiude la tapparella, per evitare
