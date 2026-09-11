@@ -1,0 +1,15 @@
+# Bytecode/cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Checkpoint di Jupyter
+.ipynb_checkpoints/
+
+# Ambienti virtuali
+.venv/
+venv/
+
+# File di sistema
+.DS_Store
+Thumbs.db
