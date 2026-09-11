@@ -23,13 +23,13 @@ modules/                        # codice condiviso, importato dai notebook
   baseline_controller.py         #   ThresholdController: baseline a soglie fisse (non-RL)
   eval_utils.py                  #   funzioni comuni: esecuzione episodi, metriche, grafico "giorno tipo"
 
-notebooks/                      # notebook eseguibili, vedi "Ordine di esecuzione" sotto
+notebooks/                      # notebook eseguibili
   01_training.ipynb              #   allena PPO e SAC e salva i modelli
   02_domande_di_ricerca.ipynb    #   carica i modelli allenati e risponde a Q1/Q2/Q3
 
 models/                         # modelli allenati (prodotti da 01_training.ipynb)
   ppo_q2_seed{1..N}.zip           #   un modello PPO per ogni training seed
-  sac_q2_seed{1..N}.zip           #   un modello SAC per ogni training seed (riusato anche da Q1/Q3)
+  sac_q2_seed{1..N}.zip           #   un modello SAC per ogni training seed
 
 logs/                            # log di training per episodio (prodotti da 01_training.ipynb)
   q2_ppo_seed{1..N}/monitor.monitor.csv
@@ -50,8 +50,7 @@ valori piccoli 1..N) sia in valutazione (`TEST_SEEDS`, valori a partire
 da 1000, così da non sovrapporsi mai ai seed di training). Gli artefatti
 salvati su disco sono quelli prodotti dall'esecuzione dei notebook: i
 modelli allenati (`models/`), i log di reward per episodio (`logs/`) e le
-figure generate in fase di analisi (`figures/`). Vedi la sezione
-"Struttura delle cartelle" sopra per dove trovarli.
+figure generate in fase di analisi (`figures/`).
 
 ### Come funziona l'ambiente (`modules/lighting_env.py`, classe `AdaLux`)
 
