@@ -87,21 +87,15 @@ figure generate in fase di analisi (`figures/`).
 ### Baseline non-RL (`modules/baseline_controller.py`)
 
 `ThresholdController` è un controllore a regole fisse (nessun
-apprendimento). Il setpoint non è un valore nominale fisso: a inizio
-episodio legge una sola volta `env.lux_target` (il target reale
-sorteggiato da `reset()`) e lo mantiene costante per tutta la durata
-dell'episodio, esattamente come un termostato a cui si imposta una
-soglia all'avvio, senza rileggerla in continuazione. Se la stanza non è
-occupata tiene tapparella chiusa e LED spenti; se è occupata, sceglie la
-posizione della tapparella tra 4 livelli fissi in base al rapporto tra
-lux interno attuale e il target dell'episodio (più lux interno, più
-chiude la tapparella, per evitare abbagliamento), e controlla i LED con
-una logica ON/OFF con una banda morta del 10% attorno al target: fuori
-banda accende o spegne al massimo, dentro banda non cambia stato (per
-non oscillare in continuazione). Serve da termine di paragone per
-l'agente RL (domanda Q1): baseline e RL competono così sullo stesso
-target per episodio, invece di confrontare un RL "informato" con un
-baseline tarato su un valore fisso di 500 lux.
+apprendimento), tarato su un setpoint nominale fisso di 500 lux e ignaro
+del target reale dell'episodio. Se la stanza non è occupata tiene tapparella
+chiusa e LED spenti; se è occupata, sceglie la posizione della tapparella
+tra 4 livelli fissi in base al rapporto tra lux interno attuale e
+setpoint nominale (più lux interno, più chiude la tapparella, per evitare
+abbagliamento), e controlla i LED con una logica ON/OFF con una banda
+morta del 10% attorno al setpoint: fuori banda accende o spegne al
+massimo, dentro banda non cambia stato (per non oscillare in continuazione).
+Serve da termine di paragone per l'agente RL (domanda Q1).
 
 ## Librerie richieste
 

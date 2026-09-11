@@ -29,7 +29,6 @@ def energy_kwh(led_levels, step_minutes=AdaLux.STEP_MINUTES, power_watts=LED_POW
 
 
 def energy_cost_eur(kwh, price_eur_per_kwh=ENERGY_PRICE_EUR_PER_KWH):
-    # costo economico dell'energia consumata, al prezzo indicativo sopra
     return kwh * price_eur_per_kwh
 
 
@@ -50,7 +49,7 @@ def run_episode(policy, seed, env_cls=AdaLux, is_baseline=False):
     env = env_cls(seed=seed)
     obs, _ = env.reset(seed=seed)
     if hasattr(policy, "reset"):
-        policy.reset()
+        policy.reset(env)  # il baseline cattura env.lux_target qui, a inizio episodio
     done = False
     records = []
     while not done:

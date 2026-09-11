@@ -5,23 +5,29 @@ Controllore "classico" a soglie fisse (regole if/else, nessun apprendimento),
 rappresentativo di una logica di building-automation tradizionale. Serve
 come baseline di confronto per l'agente RL (Q1).
 
-Punto chiave: un controllore a soglie fisse reale viene tarato UNA VOLTA in
-fase di installazione su un valore di setpoint nominale (es. 500 lux, il
-valore raccomandato per lettura/lavoro) e NON riceve come input il target
-di lux richiesto in un dato momento: le sue soglie restano identiche in
-ogni episodio, a differenza dell'agente RL che osserva il target corrente
-(oss. indice 6) e può adattarsi episodio per episodio. Questo è uno dei
-vantaggi strutturali dell'approccio RL che Q1 vuole mettere in evidenza.
+Punto chiave (AGGIORNATO): il controllore riceve il target reale
+dell'episodio (env.lux_target) UNA VOLTA SOLA, a inizio episodio
+(reset(env)), e lo tiene fisso per tutta la sua durata -- come un vero
+controllore a cui viene impostato un setpoint all'installazione, ma qui
+il setpoint coincide con il target vero dell'episodio invece di un
+valore nominale arbitrario (es. 500 lux) uguale per tutti gli episodi.
+Non lo rilegge step per step e non lo conosce in anticipo per episodi
+futuri. Questo rende il confronto con l'agente RL più equo per Q1:
+prima il baseline era penalizzato anche solo per non conoscere il
+target (oss. indice 6, che invece l'RL osserva), ora entrambi partono
+dallo stesso target per episodio e si confronta la qualita' della
+strategia di controllo in se', non solo l'informazione disponibile.
 
-Logica (fissa, non adattiva):
+Logica (fissa una volta noto il target, non adattiva step per step):
   - Stanza NON occupata -> tapparella chiusa, LED spenti (risparmio energetico).
   - Stanza occupata:
       - Tapparella: posizione scelta tra un piccolo numero di livelli fissi
-        in base a soglie di lux assolute (multi-step, come un dimmer/tenda
-        a più posizioni tipico di un BMS semplice) calcolate sul setpoint
-        NOMINALE (non sul target reale dell'episodio).
+        in base a soglie di lux relative al target dell'episodio (multi-step,
+        come un dimmer/tenda a più posizioni tipico di un BMS semplice) --
+        non più soglie assolute, perché il target ora varia da episodio a
+        episodio.
       - LED: controllo bang-bang con banda morta (hysteresis) attorno al
-        setpoint nominale -> se il lux è sotto il target di oltre
+        target dell'episodio -> se il lux è sotto il target di oltre
         `deadband` i LED vanno al massimo, se è sopra vanno a zero,
         altrimenti restano invariati (per non oscillare in continuazione
         dentro la banda).
